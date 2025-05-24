@@ -1,0 +1,496 @@
+{
+  "name": "PFAI_Theory_Project",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Retrieve the input text from json.message.text\nconst inputText = $input.first().json.chatInput;\n\n// Check if inputText is a string \nif (typeof inputText !== 'string') {\n  throw new Error('Input text must be a string');\n}\n\n// Trim whitespace and convert to uppercase\nconst trimmedUpperText = inputText.trim().toUpperCase();\n\n// Append 'USDT' to form the trading pair symbol \nconst tradingPairSymbol = `${trimmedUpperText}USDT`;\n\n// Output the result as a JSON object\nreturn [\n  {\n    json: {\n      tradingPairSymbol: tradingPairSymbol\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        320
+      ],
+      "id": "b78f8a2a-d73a-4fac-9ebd-db77ff0bae36",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        920,
+        200
+      ],
+      "id": "413d6a2e-07d7-434b-9f53-b74252bd4f94",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=here is combined market data for {{ $('Code').first().json.tradingPairSymbol }} you to reference:\n\nTechnical Data:\n{{ JSON.stringify($json.allCandles, null, 2) }}\n\nThis is a JSON array where each element is a candlestick data object for a crypto asset. Each object has the following structure:\n- timeframe: either \"15m\", \"1h\", or \"1d\"\n- candles: an array of values in the following \norder:\n  [openTime, open, high, low, close, volume, closeTime, quoteVolume, trades,\ntakerBuyBaseVolume, takerBuy QuoteVolume, ignore]\n\nSentiment Data: At the end of the JSON array\nthere is also a long term and short term sentiment analysis based on crypto news headlines for the past 7 days.\n\n\nPlease perform the following steps:\n\nGroup the Data:\n\nGroup the candlestick objects by timeframe into three groups:\n- Short-term data: \"15m\" candles\n- Medium-term data: \"1h\" candles\n- Long-term data: \"1d\" candles\n\nAnalyze the Data in Detail:\n\nShort-term Analysis:\nUse the 15m candles (with supportive insights from the 1h candles) to evaluate volatility and determine near-term support and resistance levels. In your analysis, combine traditional lagging indicators (such as MACD, RSI, and OBV) as confirmation tools with direct price action elements-like key support/resistance zones, trendlines, and divergence patterns. Focus on these price-based signals to capture immediate market sentiment and structural levels.\n\nLong-term Analysis:\nUse the 1d candles (and relevant insights from the 1h candles) to assess the overall market direction and major support/resistance zones.\nHere, integrate long-term trendlines and divergence signals along with lagging indicators to understand the broader market context and potential structural shifts.\n\nGenerate Trading Recommendations:\n\nFor spot Trading:\n\n  Action: (buy, sell, or hold)\n  Entry Price:\n  Stop-Loss Level:\n  Take Profit (TP) Level:\n  Rationale: Provide an extremely detailed\nexplanation of your recommendation. Break down your rationale into three parts:\na. Primary Signals: Describe key price action\ninsights (support/resistance zones, trendline breakouts or bounces, divergence patterns).\nb. Lagging Indicators: Explain how indicators (MACD, RSI, OBV, etc.) confirm or supplement these signals.\nc. Sentiment Analysis: Discuss volume trends, market sentiment, and macro factors. Combine these elements into one comprehensive explanation.\n\nFor Leveraged Trading:\n\n  Position: (long or short)\n  Recommended Leverage: (e.g., 3x, 5x, etc.)\n  Entry Price:\n  Stop-Loss Level:\n  Take Profit (TP) Level:\n  Rationale: Provide a detailed explanation that similarly breaks down your rationale into:\na. Primary Price Action Signals: Outline key support/resistance levels, trendlines, and. divergence patterns.\nb. Lagging Indicator Confirmation: Describe how indicators validate these signals.\nc. Sentiment & Macro Analysis: Include analysis of volume trends, overall market sentiment, and broader economic factors.\n\nOutput Format:\nReturn the final result as plain text with consistent styling for Telegram (html).\n\nEach section header (e.g., \"Spot Recommendations\") is in bold.\nEach sub-section (e.g., Primary Signals, Lagging Indicators, Sentiment Analysis) is also in bold.\nUse clear line breaks between sections and bullet points for clarity.\n\n\"{{ $('Code').first().json.tradingPairSymbol }} analysis for {{ $now }} (But make sure to format the date as \"mm/dd/yyyy at xx:xxpm\")\n\nSpot Recommendations:\n\nShort-term:\nAction: ...\nEntry Price: ...\nStop Loss: ...\nTake Profit: ...\nRationale: ...\n  - Primary Signals: ...\n  - Lagging Indicators: ...\n  - Sentiment Analysis: ...\n\nLong-term:\nAction: ...\nEntry Price: ...\nStop Loss: ...\nTake Profit: ...\nRationale: ...\n  - Primary Signals: ...\n  - Lagging Indicators: ...\n  - Sentiment Analysis: ...\n\nLeveraged Recommendations:\n\nShort-Term:\n- Position: ...\n- Leverage: ...\n- Entry Price: ...\n- Stop loss: ...\n- Take Profit: ...\n- Rationale:\n  - Primary Price Action Signals: ...\n  - Lagging Indicator Confirmation: ...\n  - Sentiment & Macro Analysis: ...\n\nLong-Term:\n- Position: ...\n- Leverage: ...\n- Entry Price: ...\n- Stop loss: ...\n- Take Profit: ...\n- Rationale:\n  - Primary Price Action Signals: ...\n  - Lagging Indicator Confirmation: ...\n  - Sentiment & Macro Analysis: ...\n\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1740,
+        420
+      ],
+      "id": "8f7030ac-e282-4b18-ab60-2be44970eb57",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"timeframe\": \"1d\",\n  \"candles\": {{ $json }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        620,
+        440
+      ],
+      "id": "eb7cf52c-290e-4ef7-b36d-64c95e8f70aa",
+      "name": "1D Candle Data"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"timeframe\": \"1h\",\n  \"candles\": {{ $json }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        620,
+        180
+      ],
+      "id": "55762cac-81e7-4a4c-82e7-7d17e502c943",
+      "name": "1H Candle Data"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"timeframe\": \"15m\",\n  \"candles\": {{ $json }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        620,
+        -80
+      ],
+      "id": "4261c3e2-57d8-4a89-ac7e-44de11f03de5",
+      "name": "15M Candle Data"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.binance.com/api/v3/klines?symbol={{ $json.tradingPairSymbol }}&interval=15m&limit=200",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        -80
+      ],
+      "id": "2d68b35f-721b-41b6-bf8f-ae94252c4931",
+      "name": "HTTP 15m"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.binance.com/api/v3/klines?symbol={{ $json.tradingPairSymbol }}&interval=1h&limit=200",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        180
+      ],
+      "id": "71dd8ef0-74ed-4b80-9176-2917bbf0ad36",
+      "name": "HTTP 1h"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.binance.com/api/v3/klines?symbol={{ $json.tradingPairSymbol }}&interval=1d&limit=200",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        440
+      ],
+      "id": "df9a2f6a-dde7-4112-93e6-c766844e65e4",
+      "name": "HTTP 1d"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"items\" is an array of 3000 items from the Merge node.\n// We'll collect them all in a single array called \"allCandles\".\nconst allCandles = [];\n\nfor (const item of items) {\n  allCandles.push(item.json);\n}\n\n// Return a single item with a property named \"allCandles\" (an array of 3000).\nreturn [{\n  json: {\n    allCandles\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        200
+      ],
+      "id": "fad3e71a-b061-4532-b48c-fd7434768b47",
+      "name": "Combine JSON Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputText = $json[\"output\"] || \"\";\nif (typeof inputText !== \"string\") {\n  throw new Error(\"Input must be a string\");\n}\nconst mid = Math.ceil(inputText.length / 2);\nconst firstHalf = inputText.substring(0, mid);\nconst secondHalf = inputText.substring(mid);\nreturn [\n  { json: {blockNumber: 1, content: firstHalf } },\n  { json: {blockNumber: 2, content: secondHalf } },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        420
+      ],
+      "id": "64292e88-2c05-404e-8917-5f9032f0575a",
+      "name": "Split Telegram Message"
+    },
+    {
+      "parameters": {
+        "content": "## Format the ticker",
+        "height": 220,
+        "width": 320,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        260
+      ],
+      "id": "81dda4ed-40ec-4009-83f9-8d87e9844cd6",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Get 15m Candle data\n",
+        "height": 220,
+        "width": 400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        380,
+        -140
+      ],
+      "id": "2f158dbe-81a9-48f5-9837-ad90b52b9617",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Get 1h Candle data\n",
+        "height": 220,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        380,
+        120
+      ],
+      "id": "9497ba39-533b-4f46-abb2-392ad1bb73f5",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Get 1d Candle data\n",
+        "height": 220,
+        "width": 400,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        380,
+        380
+      ],
+      "id": "6a4431f4-4dbd-4f0b-98ec-e0c2fdfba7bc",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Combine all Candles\n\n",
+        "height": 220,
+        "width": 360,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        140
+      ],
+      "id": "899e38fd-6623-4c0f-a1b7-11330ba5efbc",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Create The analysis\n\n\n",
+        "height": 220,
+        "width": 360,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        360
+      ],
+      "id": "0da3dcf4-d7d2-460c-891e-e658e6b29c01",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Send Email\n \n\n",
+        "height": 220,
+        "width": 460,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        360
+      ],
+      "id": "0d0a700d-3891-4cd8-8fe4-0fcf13cb7889",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -40,
+        320
+      ],
+      "id": "b12e88ad-4dce-42e6-a5c1-25d19260abd4",
+      "name": "When chat message received",
+      "webhookId": "a3b418ab-c987-44e5-b2c5-dcaf3f716de2"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        640
+      ],
+      "id": "24a54b30-416e-4086-af35-9dfc3fa2d84d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "nI2OJciB8x8s6DYt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "umair08403@gmail.com",
+        "subject": "Crypto Analysis Signal",
+        "emailType": "text",
+        "message": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2360,
+        420
+      ],
+      "id": "513f933a-de0f-4e55-ab7e-01c8bf136bdd",
+      "name": "Gmail",
+      "webhookId": "12b3a705-2375-4591-8078-49215bf5463f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KZlXeJrHd62D6JJa",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP 15m",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP 1h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP 1d",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Combine JSON Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1D Candle Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "1H Candle Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "15M Candle Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 15m": {
+      "main": [
+        [
+          {
+            "node": "15M Candle Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 1h": {
+      "main": [
+        [
+          {
+            "node": "1H Candle Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 1d": {
+      "main": [
+        [
+          {
+            "node": "1D Candle Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine JSON Data": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Split Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c450e285-30d0-461c-ae98-726bbdff479d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "54e1fbe748305d814aa884d88a472a5160785b470324813ce324b894622779ba"
+  },
+  "id": "urhVjum1t2a263tG",
+  "tags": []
+}
